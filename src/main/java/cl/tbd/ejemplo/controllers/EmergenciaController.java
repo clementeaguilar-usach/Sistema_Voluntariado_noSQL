@@ -1,11 +1,15 @@
 package cl.tbd.ejemplo.controllers;
 
 import cl.tbd.ejemplo.models.Emergencia;
+import cl.tbd.ejemplo.models.Tarea;
 import cl.tbd.ejemplo.services.EmergenciaService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.bson.Document;
+import org.bson.codecs.pojo.annotations.BsonId;
+import org.bson.types.ObjectId;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,6 +19,11 @@ public class EmergenciaController {
     @PostMapping("/emergencias")
     public Emergencia createEmergencia(@RequestBody Emergencia emergencia){
         return emergenciaService.createEmergencia(emergencia);
+    }
+
+    @GetMapping("/emergencias/{id}/tareas")
+    public List<Document> getTareasByEmergenciaId(@PathVariable ObjectId id){
+        return emergenciaService.getTareasByEmergenciaId(id);
     }
 
 }
