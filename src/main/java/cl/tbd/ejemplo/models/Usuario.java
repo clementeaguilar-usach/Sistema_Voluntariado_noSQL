@@ -12,9 +12,9 @@ public class Usuario {
     String apellido;
     String email;
     String password;
-    List<Rol> roles;
-    Coordinador coordinador;
-    Voluntario voluntario;
+    //List<Rol> roles;
+    //Coordinador coordinador;
+    //Voluntario voluntario;
 
     public ObjectId get_id() { return this._id; }
     public void set_id(ObjectId _id) { this._id = _id; }
@@ -31,12 +31,12 @@ public class Usuario {
     public String getPassword() { return this.password; }
     public void setPassword(String password) { this.password = password; }
 
-    public List<Rol> getRoles() { return this.roles; }
-    public void setRoles(List<Rol> roles) { this.roles = roles; }
+    //public List<Rol> getRoles() { return this.roles; }
+    //public void setRoles(List<Rol> roles) { this.roles = roles; }
 
-    public Coordinador getCoordinador() { return this.coordinador; }
-    public void setCoordinador(Coordinador coordinador) { this.coordinador = coordinador; }
+    //public Coordinador getCoordinador() { return this.coordinador; }
+    //public void setCoordinador(Coordinador coordinador) { this.coordinador = coordinador; }
 
-    public Voluntario getVoluntario() { return this.voluntario; }
-    public void setVoluntario(Voluntario voluntario) { this.voluntario = voluntario; }
+    //public Voluntario getVoluntario() { return this.voluntario; }
+    //public void setVoluntario(Voluntario voluntario) { this.voluntario = voluntario; }
 }
