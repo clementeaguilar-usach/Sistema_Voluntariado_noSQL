@@ -1,17 +1,20 @@
 package cl.tbd.ejemplo.repositories;
 
 import cl.tbd.ejemplo.models.Emergencia;
-import cl.tbd.ejemplo.models.Tarea;
 import org.bson.Document;
-import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.types.ObjectId;
 
-import javax.print.Doc;
 import java.util.List;
 
 public interface EmergenciaRepository {
-    public Emergencia createEmergencia(Emergencia emergencia);
+    Document getEmergencia(ObjectId idEmergencia);
+    Emergencia createEmergencia(Emergencia emergencia);
+    void updateEmergencia(Emergencia emergencia);
 
-    public List<Document> getTareasByEmergenciaId(ObjectId idEmergencia);
+    List<Document> getTareasActivasByEmergenciaId(ObjectId idEmergencia);
+
+    Document getEmergencia2(ObjectId id);
+    List<Document> getEmergencias();
+    void deleteEmergencia(ObjectId id);
 //    public List<Emergencia> getEmergencias();
 }

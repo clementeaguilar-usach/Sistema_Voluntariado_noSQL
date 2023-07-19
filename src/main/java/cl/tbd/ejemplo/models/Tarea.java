@@ -17,12 +17,10 @@ public class Tarea {
     Date fechaInicio;
     Date fechaFin;
     String estado;
-    //List<Habilidad> habilidades;
-    //Emergencia emergencia;
-
-
-    public ObjectId get_id() { return this._id; }
-    public void set_id(ObjectId _id) { this._id = _id; }
+    List<ObjectId> habilidades;
+    ObjectId emergencia;
+    public ObjectId getId() { return this._id; }
+    public void setId(ObjectId _id) { this._id = _id; }
 
     public String getNombre() { return this.nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
@@ -46,23 +44,14 @@ public class Tarea {
     public void setEstado(String estado) { this.estado = estado; }
 
 
-    //public List<Habilidad> getHabilidades() { return this.habilidades; }
-    //public void setHabilidades(List<Habilidad> habilidades) { this.habilidades = habilidades; }
+    public List<ObjectId> getHabilidades() { return this.habilidades; }
+    public void setHabilidades(List<ObjectId> habilidades) { this.habilidades = habilidades; }
 
-    //public Emergencia getEmergencia() { return this.emergencia; }
-    //public void setEmergencia(Emergencia emergencia) { this.emergencia = emergencia; }
+    public ObjectId getEmergencia() {
+        return emergencia;
+    }
 
-    public Document toDocument() {
-        Document document = new Document();
-        document.append("nombre", this.nombre);
-        document.append("descripcion", this.descripcion);
-        document.append("voluntariosRequeridos", this.voluntariosRequeridos);
-        document.append("voluntariosInsrcitos", this.voluntariosInscritos);
-        document.append("fechaInicio", this.fechaInicio);
-        document.append("fechaFin", this.fechaFin);
-        document.append("estado", this.estado);
-        //document.append("habilidades", this.habilidades);
-        //document.append("emergencia", this.emergencia);
-        return document;
+    public void setEmergencia(ObjectId emergencia) {
+        this.emergencia = emergencia;
     }
 }

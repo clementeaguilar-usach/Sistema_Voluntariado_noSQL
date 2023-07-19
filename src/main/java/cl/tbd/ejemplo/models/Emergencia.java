@@ -16,18 +16,15 @@ public class Emergencia {
     String descripcion;
     Date fechaInicio;
     Date fechaFin;
-    //Institucion institucion;
-    //List<Habilidad> habilidades;
-    List<Tarea> tareas;
+    ObjectId institucion;
+    List<ObjectId> habilidades;
+    List<ObjectId> tareas;
 
     public ObjectId getId() {
         return this._id;
     }
     public void setId(ObjectId id) {
         this._id = id;
-    }
-    public String getStringId(){
-        return this._id.toString();
     }
 
     public String getNombre() {
@@ -50,12 +47,22 @@ public class Emergencia {
     public Date getFechaFin() { return this.fechaFin; }
     public void setFechaFin(Date fechaFin) { this.fechaFin = fechaFin; }
 
-    //public Institucion getInstitucion() { return this.institucion; }
-    //public void setInstitucion(Institucion institucion) { this.institucion = institucion; }
+    public List<ObjectId> getTareas() { return this.tareas; }
+    public void setTareas(List<ObjectId> tareas) { this.tareas = tareas; }
 
-    //public List<Habilidad> getHabilidades() { return this.habilidades; }
-    //public void setHabilidades(List<Habilidad> habilidades) { this.habilidades = habilidades; }
+    public ObjectId getInstitucion() {
+        return institucion;
+    }
 
-    public List<Tarea> getTareas() { return this.tareas; }
-    public void setTareas(List<Tarea> tareas) { this.tareas = tareas; }
+    public void setInstitucion(ObjectId institucion) {
+        this.institucion = institucion;
+    }
+
+    public List<ObjectId> getHabilidades() {
+        return habilidades;
+    }
+
+    public void setHabilidades(List<ObjectId> habilidades) {
+        this.habilidades = habilidades;
+    }
 }

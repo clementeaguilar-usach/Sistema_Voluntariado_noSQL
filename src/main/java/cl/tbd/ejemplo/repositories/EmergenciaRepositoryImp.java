@@ -1,9 +1,7 @@
 package cl.tbd.ejemplo.repositories;
 
 import cl.tbd.ejemplo.models.Emergencia;
-import cl.tbd.ejemplo.models.Tarea;
-import com.mongodb.client.AggregateIterable;
-import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Updates;
 import org.bson.Document;
 
 import java.util.ArrayList;
@@ -13,19 +11,15 @@ import java.util.List;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
-import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import cl.tbd.ejemplo.models.Dog;
-
 import javax.print.Doc;
 
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Projections.*;
 
 @Repository
 public class EmergenciaRepositoryImp implements EmergenciaRepository {
@@ -40,27 +34,21 @@ public class EmergenciaRepositoryImp implements EmergenciaRepository {
     }
 
     @Override
-    public List<Document> getTareasByEmergenciaId(ObjectId idEmergencia){
+    public List<Document> getTareasActivasByEmergenciaId(ObjectId idEmergencia){
         MongoCollection<Emergencia> collection = database.getCollection("emergencias",  Emergencia.class);
-        // Filtrar por el ID de emergencia
+
         Bson matchStage = match(eq("_id", idEmergencia));
 
-        // Realizar el primer lookup con la colección "tareas"
         Bson lookupTareasStage = lookup("tareas", "tareas", "_id", "tareas_info");
 
-        // Desenrollar el array resultante
         Bson unwindTareasStage = unwind("$tareas_info");
 
-        // Realizar el segundo lookup con la colección "estados"
         Bson lookupEstadosStage = lookup("estados", "tareas_info.estado", "descripcion", "tareas_info.estado_info");
 
-        // Desenrollar el array resultante
         Bson unwindEstadosStage = unwind("$tareas_info.estado_info");
 
-        // Filtrar las tareas con estado "activa"
         Bson matchEstadoStage = match(eq("tareas_info.estado_info.descripcion", "activa"));
 
-        // Proyectar el resultado final
         Bson projectStage = project(
                 new Document("_id", "$tareas_info._id")
                         .append("nombre", "$tareas_info.nombre")
@@ -73,7 +61,7 @@ public class EmergenciaRepositoryImp implements EmergenciaRepository {
                         .append("estado_info", "$tareas_info.estado_info")
         );
 
-        // Agregar las etapas al pipeline de agregación
+        // Agregar las etapas al pipeline
         List<Bson> pipeline = Arrays.asList(
                 matchStage,
                 lookupTareasStage,
@@ -84,30 +72,96 @@ public class EmergenciaRepositoryImp implements EmergenciaRepository {
                 projectStage
         );
 
-        // Ejecutar la agregación y obtener el resultado
+        //Realizar agregación y transformar resultado en una lista.
         List<Document> results = collection.aggregate(pipeline, Document.class).into(new ArrayList<>());
-        // Convertir el resultado en una lista de tareas
+
         return results;
     }
 
-    public void updateEmergencia(String id, String nuevoNombre, String nuevaDescripcion, String nuevaFechaInicio, String nuevaFechaFin) {
-        MongoCollection<Emergencia> collection = database.getCollection("emergencias",  Emergencia.class);
+    @Override
+    public void updateEmergencia(Emergencia emergencia) {
+        MongoCollection<Emergencia> collection = database.getCollection("emergencias", Emergencia.class);
         // Crear el filtro para buscar la emergencia por su ID
-        Document filtro = new Document("_id", new ObjectId(id));
+        Document filtro = new Document("_id", emergencia.getId());
 
-        // Crear el documento con los nuevos valores de la emergencia
-        Emergencia nuevosValores = new Emergencia();
-        nuevosValores.setNombre(nuevoNombre);
-        nuevosValores.append("descripcion", nuevaDescripcion);
-        nuevosValores.append("fechaInicio", nuevaFechaInicio);
-        nuevosValores.append("fechaFin", nuevaFechaFin);
+        // Campos a actualizar
+        Bson update = Updates.combine(
+                Updates.set("nombre", emergencia.getNombre()),
+                Updates.set("descripcion", emergencia.getDescripcion()),
+                Updates.set("fechaInicio", emergencia.getFechaInicio()),
+                Updates.set("fechaFin", emergencia.getFechaFin()),
+                Updates.set("tareas", emergencia.getTareas()),
+                Updates.set("habilidades", emergencia.getHabilidades()),
+                Updates.set("institucion", emergencia.getInstitucion())
+        );
 
-        // Realizar la actualización y obtener el documento anterior
-        Document documentoAnterior = collection.findOneAndReplace(filtro, nuevosValores);
-
-        // Imprimir el documento anterior (opcional)
-        if (documentoAnterior != null) {
-            System.out.println("Documento anterior: " + documentoAnterior.toJson());
-        }
+        // Realizar la actualización
+        collection.findOneAndUpdate(filtro, update);
     }
+
+    @Override
+    public Document getEmergencia(ObjectId idEmergencia){
+        MongoCollection<Document> collection = database.getCollection("emergencias");
+        Document filtro = new Document("_id", idEmergencia);
+        return collection.find(filtro).first();
+    }
+
+    @Override
+    public Document getEmergencia2(ObjectId idEmergencia){
+        MongoCollection<Emergencia> collection = database.getCollection("emergencias", Emergencia.class);
+        List<Bson> pipeline = Arrays.asList(new Document("$match",
+                        new Document("_id", idEmergencia)),
+                new Document("$lookup",
+                        new Document("from", "tareas")
+                                .append("localField", "tareas")
+                                .append("foreignField", "_id")
+                                .append("as", "tareas")),
+                new Document("$lookup",
+                        new Document("from", "habilidades")
+                                .append("localField", "habilidades")
+                                .append("foreignField", "_id")
+                                .append("as", "habilidades")),
+                new Document("$lookup",
+                        new Document("from", "instituciones")
+                                .append("localField", "institucion")
+                                .append("foreignField", "_id")
+                                .append("as", "institucion")));
+
+        Document emergencia = collection.aggregate(pipeline, Document.class).first();
+        return emergencia;
+    }
+
+    @Override
+    public void deleteEmergencia(ObjectId id) {
+        MongoCollection<Emergencia> collection = database.getCollection("emergencias", Emergencia.class);
+        // Crear el filtro para buscar la emergencia por su ID
+        Document filtro = new Document("_id", id);
+
+        // Realizar la actualización
+        collection.deleteOne(filtro);
+    }
+
+    @Override
+    public List<Document> getEmergencias(){
+        MongoCollection<Emergencia> collection = database.getCollection("emergencias", Emergencia.class);
+        List<Bson> pipeline = Arrays.asList(
+                new Document("$lookup",
+                        new Document("from", "tareas")
+                                .append("localField", "tareas")
+                                .append("foreignField", "_id")
+                                .append("as", "tareas")),
+                new Document("$lookup",
+                        new Document("from", "habilidades")
+                                .append("localField", "habilidades")
+                                .append("foreignField", "_id")
+                                .append("as", "habilidades")),
+                new Document("$lookup",
+                        new Document("from", "instituciones")
+                                .append("localField", "institucion")
+                                .append("foreignField", "_id")
+                                .append("as", "institucion")));
+
+        List<Document> emergencia = collection.aggregate(pipeline, Document.class).into(new ArrayList<>());
+        return emergencia;
+    };
 }
