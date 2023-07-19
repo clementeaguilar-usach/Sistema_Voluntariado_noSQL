@@ -25,5 +25,4 @@ public class EmergenciaController {
     public List<Document> getTareasByEmergenciaId(@PathVariable ObjectId id){
         return emergenciaService.getTareasByEmergenciaId(id);
     }
-
 }

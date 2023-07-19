@@ -16,8 +16,7 @@ public class Tarea {
     Integer voluntariosInscritos;
     Date fechaInicio;
     Date fechaFin;
-    Estado estado;
-
+    String estado;
     //List<Habilidad> habilidades;
     //Emergencia emergencia;
 
@@ -43,8 +42,8 @@ public class Tarea {
     public Date getFechaFin() { return this.fechaFin; }
     public void setFechaFin(Date fechaFin) { this.fechaFin = fechaFin; }
 
-    public Estado getEstado() { return this.estado; }
-    public void setEstado(Estado estado) { this.estado = estado; }
+    public String getEstado() { return this.estado; }
+    public void setEstado(String estado) { this.estado = estado; }
 
 
     //public List<Habilidad> getHabilidades() { return this.habilidades; }

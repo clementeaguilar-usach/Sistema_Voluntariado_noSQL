@@ -3,6 +3,7 @@ package cl.tbd.ejemplo.repositories;
 import cl.tbd.ejemplo.models.Emergencia;
 import cl.tbd.ejemplo.models.Tarea;
 import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.MongoCursor;
 import org.bson.Document;
 
 import java.util.ArrayList;
@@ -35,7 +36,6 @@ public class EmergenciaRepositoryImp implements EmergenciaRepository {
     public Emergencia createEmergencia(Emergencia emergencia) {
         MongoCollection<Emergencia> collection = database.getCollection("emergencias", Emergencia.class);
         collection.insertOne(emergencia);
-
         return emergencia;
     }
 
@@ -88,5 +88,26 @@ public class EmergenciaRepositoryImp implements EmergenciaRepository {
         List<Document> results = collection.aggregate(pipeline, Document.class).into(new ArrayList<>());
         // Convertir el resultado en una lista de tareas
         return results;
+    }
+
+    public void updateEmergencia(String id, String nuevoNombre, String nuevaDescripcion, String nuevaFechaInicio, String nuevaFechaFin) {
+        MongoCollection<Emergencia> collection = database.getCollection("emergencias",  Emergencia.class);
+        // Crear el filtro para buscar la emergencia por su ID
+        Document filtro = new Document("_id", new ObjectId(id));
+
+        // Crear el documento con los nuevos valores de la emergencia
+        Emergencia nuevosValores = new Emergencia();
+        nuevosValores.setNombre(nuevoNombre);
+        nuevosValores.append("descripcion", nuevaDescripcion);
+        nuevosValores.append("fechaInicio", nuevaFechaInicio);
+        nuevosValores.append("fechaFin", nuevaFechaFin);
+
+        // Realizar la actualización y obtener el documento anterior
+        Document documentoAnterior = collection.findOneAndReplace(filtro, nuevosValores);
+
+        // Imprimir el documento anterior (opcional)
+        if (documentoAnterior != null) {
+            System.out.println("Documento anterior: " + documentoAnterior.toJson());
+        }
     }
 }
